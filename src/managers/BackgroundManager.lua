@@ -153,7 +153,7 @@ function BackgroundManager:update(dt)
     end
 end
 
-function BackgroundManager:draw(screenWidth, screenHeight, gameState)
+function BackgroundManager:draw(gameState)
     local time = love.timer.getTime()
 
     -- Deep space gradient background

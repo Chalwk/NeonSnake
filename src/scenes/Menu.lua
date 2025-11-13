@@ -48,10 +48,7 @@ Menu.__index = Menu
 
 function Menu.new()
     local instance = setmetatable({}, Menu)
-
-    instance.screenWidth = 1200
-    instance.screenHeight = 800
-    instance.difficulty = "medium"
+    instance.difficulty = "easy"
     instance.title = {
         text = "NEON SNAKE",
         scale = 1,
@@ -80,8 +77,8 @@ function Menu:initMenuParticles()
     self.menuParticles = {}
     for _ = 1, 30 do
         table_insert(self.menuParticles, {
-            x = math_random(0, self.screenWidth),
-            y = math_random(0, self.screenHeight),
+            x = math_random(0, screenWidth),
+            y = math_random(0, screenHeight),
             size = math_random(2, 8),
             speed = math_random(10, 30),
             angle = math_random() * math_pi * 2,
@@ -105,8 +102,6 @@ function Menu:setFonts(fonts)
 end
 
 function Menu:setScreenSize(width, height)
-    self.screenWidth = width
-    self.screenHeight = height
     self:updateButtonPositions()
     self:updateOptionsButtonPositions()
 end
@@ -212,17 +207,17 @@ function Menu:createOptionsButtons()
 end
 
 function Menu:updateButtonPositions()
-    local startY = self.screenHeight / 2 - 30
+    local startY = screenHeight / 2 - 30
     for i, button in ipairs(self.menuButtons) do
-        button.x = (self.screenWidth - button.width) / 2
+        button.x = (screenWidth - button.width) / 2
         button.y = startY + (i - 1) * 80
     end
 end
 
 function Menu:updateOptionsButtonPositions()
-    local centerX = self.screenWidth / 2
+    local centerX = screenWidth / 2
     local totalSectionsHeight = 220
-    local startY = (self.screenHeight - totalSectionsHeight) / 2
+    local startY = (screenHeight - totalSectionsHeight) / 2
 
     -- Difficulty buttons
     local diffButtonW, diffButtonH, diffSpacing = 200, 50, 20
@@ -246,15 +241,11 @@ function Menu:updateOptionsButtonPositions()
     end
 end
 
-function Menu:update(dt, screenWidth, screenHeight)
+function Menu:update(dt)
     self.time = self.time + dt
 
-    if screenWidth ~= self.screenWidth or screenHeight ~= self.screenHeight then
-        self.screenWidth = screenWidth
-        self.screenHeight = screenHeight
-        self:updateButtonPositions()
-        self:updateOptionsButtonPositions()
-    end
+    self:updateButtonPositions()
+    self:updateOptionsButtonPositions()
 
     -- Update title animation
     self.title.scale = self.title.scale + self.title.scaleDirection * self.title.scaleSpeed * dt
@@ -317,17 +308,17 @@ function Menu:update(dt, screenWidth, screenHeight)
             particle.y = particle.y + math_sin(particle.angle) * particle.speed * dt
 
             -- Wrap around
-            if particle.x < -50 then particle.x = self.screenWidth + 50 end
-            if particle.x > self.screenWidth + 50 then particle.x = -50 end
-            if particle.y < -50 then particle.y = self.screenHeight + 50 end
-            if particle.y > self.screenHeight + 50 then particle.y = -50 end
+            if particle.x < -50 then particle.x = screenWidth + 50 end
+            if particle.x > screenWidth + 50 then particle.x = -50 end
+            if particle.y < -50 then particle.y = screenHeight + 50 end
+            if particle.y > screenHeight + 50 then particle.y = -50 end
         end
     end
 
     while #self.menuParticles < 30 do
         table_insert(self.menuParticles, {
-            x = math_random(-50, self.screenWidth + 50),
-            y = math_random(-50, self.screenHeight + 50),
+            x = math_random(-50, screenWidth + 50),
+            y = math_random(-50, screenHeight + 50),
             size = math_random(2, 8),
             speed = math_random(10, 30),
             angle = math_random() * math_pi * 2,
@@ -342,7 +333,7 @@ function Menu:update(dt, screenWidth, screenHeight)
     end
 end
 
-function Menu:draw(screenWidth, screenHeight, state)
+function Menu:draw(state)
     self.screenState = state
 
     -- Draw menu particles
@@ -374,7 +365,7 @@ function Menu:draw(screenWidth, screenHeight, state)
 
     if state == "menu" then
         if self.showHelp then
-            self:drawHelpOverlay(screenWidth, screenHeight)
+            self:drawHelpOverlay()
         else
             self:drawMenuButtons()
             -- Draw animated tagline
@@ -394,7 +385,7 @@ function Menu:draw(screenWidth, screenHeight, state)
         10, screenHeight - 25, screenWidth - 20, "right")
 end
 
-function Menu:drawHelpOverlay(screenWidth, screenHeight)
+function Menu:drawHelpOverlay()
     -- Animated overlay
     local pulse = math_sin(self.time * 4) * 0.1 + 0.9
     lg.setColor(0, 0, 0, 0.85 * pulse)
@@ -402,7 +393,7 @@ function Menu:drawHelpOverlay(screenWidth, screenHeight)
 
     -- Help box with animation
     local boxWidth = 750
-    local boxHeight = 550
+    local boxHeight = 700
     local boxX = (screenWidth - boxWidth) / 2
     local boxY = (screenHeight - boxHeight) / 2
 
@@ -435,12 +426,12 @@ end
 
 function Menu:drawOptionsInterface()
     local totalSectionsHeight = 220
-    local startY = (self.screenHeight - totalSectionsHeight) / 2
+    local startY = (screenHeight - totalSectionsHeight) / 2
 
     -- Draw section headers with animation
     lg.setFont(self.sectionFont)
     lg.setColor(0.6, 1.0, 0.8, 0.8 + math_sin(self.time * 3) * 0.2)
-    lg.printf("Difficulty", 0, startY + 20, self.screenWidth, "center")
+    lg.printf("Difficulty", 0, startY + 20, screenWidth, "center")
 
     self:updateOptionsButtonPositions()
     self:drawOptionSection("difficulty")

@@ -8,8 +8,8 @@ local math_sin = math.sin
 local math_cos = math.cos
 local table_insert = table.insert
 
-local Snake = require("classes/Snake")
-local Food = require("classes/Food")
+local Snake = require("src.entities.Snake")
+local Food = require("src.entities.Food")
 
 local Game = {}
 Game.__index = Game
@@ -17,8 +17,6 @@ Game.__index = Game
 function Game.new()
     local instance = setmetatable({}, Game)
 
-    instance.screenWidth = 1200
-    instance.screenHeight = 800
     instance.gridSize = 30
     instance.gridWidth = 0
     instance.gridHeight = 0
@@ -31,7 +29,7 @@ function Game.new()
     instance.highScore = 0
     instance.gameOver = false
     instance.paused = false
-    instance.difficulty = "medium"
+    instance.difficulty = nil
     instance.time = 0
 
     instance.particles = {}
@@ -50,16 +48,14 @@ function Game.new()
 end
 
 function Game:setScreenSize(width, height)
-    self.screenWidth = width
-    self.screenHeight = height
     self:calculateGrid()
 end
 
 function Game:calculateGrid()
-    self.gridWidth = math_floor((self.screenWidth - 100) / self.gridSize)
-    self.gridHeight = math_floor((self.screenHeight - 200) / self.gridSize)
-    self.boardOffsetX = (self.screenWidth - self.gridWidth * self.gridSize) / 2
-    self.boardOffsetY = (self.screenHeight - self.gridHeight * self.gridSize) / 2 + 50
+    self.gridWidth = math_floor((screenWidth - 100) / self.gridSize)
+    self.gridHeight = math_floor((screenHeight - 200) / self.gridSize)
+    self.boardOffsetX = (screenWidth - self.gridWidth * self.gridSize) / 2
+    self.boardOffsetY = (screenHeight - self.gridHeight * self.gridSize) / 2 + 50
 end
 
 function Game:startNewGame(difficulty)
@@ -426,12 +422,12 @@ function Game:drawUI()
     -- Difficulty with animation
     love.graphics.setColor(0.6, 0.9, 1.0, uiPulse)
     love.graphics.printf("Difficulty: " .. self.difficulty:upper(),
-        0, 25, self.screenWidth - 25, "right")
+        0, 25, screenWidth - 25, "right")
 
     -- Snake length
     love.graphics.setColor(1.0, 0.8, 0.6, uiPulse)
     love.graphics.printf("Length: " .. #self.snake.body,
-        0, 60, self.screenWidth - 25, "right")
+        0, 60, screenWidth - 25, "right")
 
     -- Active power-ups with pulsing effect
     local powerUpY = 100
@@ -447,14 +443,14 @@ function Game:drawUI()
     -- Controls help with fade
     love.graphics.setColor(1, 1, 1, 0.5 + math_sin(self.time * 2) * 0.2)
     love.graphics.printf("ARROWS/WASD: Move | P: Pause | R: Restart | ESC: Menu",
-        0, self.screenHeight - 35, self.screenWidth, "center")
+        0, screenHeight - 35, screenWidth, "center")
 end
 
 function Game:drawGameOver()
     -- Animated overlay
     local pulse = math_sin(self.time * 5) * 0.1 + 0.9
     love.graphics.setColor(0, 0, 0, 0.8 * pulse)
-    love.graphics.rectangle("fill", 0, 0, self.screenWidth, self.screenHeight)
+    love.graphics.rectangle("fill", 0, 0, screenWidth, screenHeight)
 
     love.graphics.setFont(self.fonts.large)
 
@@ -462,29 +458,29 @@ function Game:drawGameOver()
     for i = 1, 3 do
         local glow = i * 3
         love.graphics.setColor(0.9, 0.2, 0.2, 0.3 / i)
-        love.graphics.printf("GAME OVER", -glow, self.screenHeight / 2 - 100 - glow, self.screenWidth, "center")
-        love.graphics.printf("GAME OVER", glow, self.screenHeight / 2 - 100 + glow, self.screenWidth, "center")
+        love.graphics.printf("GAME OVER", -glow, screenHeight / 2 - 100 - glow, screenWidth, "center")
+        love.graphics.printf("GAME OVER", glow, screenHeight / 2 - 100 + glow, screenWidth, "center")
     end
 
     love.graphics.setColor(1.0, 0.3, 0.3, 0.9)
-    love.graphics.printf("GAME OVER", 0, self.screenHeight / 2 - 100, self.screenWidth, "center")
+    love.graphics.printf("GAME OVER", 0, screenHeight / 2 - 100, screenWidth, "center")
 
     love.graphics.setFont(self.fonts.medium)
     love.graphics.setColor(1, 1, 1, 0.8 + math_sin(self.time * 3) * 0.2)
-    love.graphics.printf("Final Score: " .. self.score, 0, self.screenHeight / 2 - 30, self.screenWidth, "center")
-    love.graphics.printf("High Score: " .. self.highScore, 0, self.screenHeight / 2, self.screenWidth, "center")
-    love.graphics.printf("Length: " .. #self.snake.body, 0, self.screenHeight / 2 + 30, self.screenWidth, "center")
+    love.graphics.printf("Final Score: " .. self.score, 0, screenHeight / 2 - 30, screenWidth, "center")
+    love.graphics.printf("High Score: " .. self.highScore, 0, screenHeight / 2, screenWidth, "center")
+    love.graphics.printf("Length: " .. #self.snake.body, 0, screenHeight / 2 + 30, screenWidth, "center")
 
     love.graphics.setFont(self.fonts.small)
     love.graphics.setColor(0.8, 0.8, 1.0, 0.6 + math_sin(self.time * 4) * 0.4)
-    love.graphics.printf("Click anywhere to continue", 0, self.screenHeight / 2 + 80, self.screenWidth, "center")
+    love.graphics.printf("Click anywhere to continue", 0, screenHeight / 2 + 80, screenWidth, "center")
 end
 
 function Game:drawPaused()
     -- Pulsing overlay
     local pulse = math_sin(self.time * 6) * 0.1 + 0.9
     love.graphics.setColor(0, 0, 0, 0.6 * pulse)
-    love.graphics.rectangle("fill", 0, 0, self.screenWidth, self.screenHeight)
+    love.graphics.rectangle("fill", 0, 0, screenWidth, screenHeight)
 
     love.graphics.setFont(self.fonts.large)
 
@@ -492,16 +488,16 @@ function Game:drawPaused()
     for i = 1, 2 do
         local offset = i * 2
         love.graphics.setColor(0.2, 0.8, 1.0, 0.4 / i)
-        love.graphics.printf("PAUSED", -offset, self.screenHeight / 2 - 50 - offset, self.screenWidth, "center")
-        love.graphics.printf("PAUSED", offset, self.screenHeight / 2 - 50 + offset, self.screenWidth, "center")
+        love.graphics.printf("PAUSED", -offset, screenHeight / 2 - 50 - offset, screenWidth, "center")
+        love.graphics.printf("PAUSED", offset, screenHeight / 2 - 50 + offset, screenWidth, "center")
     end
 
     love.graphics.setColor(0.3, 0.9, 1.0, 0.9)
-    love.graphics.printf("PAUSED", 0, self.screenHeight / 2 - 50, self.screenWidth, "center")
+    love.graphics.printf("PAUSED", 0, screenHeight / 2 - 50, screenWidth, "center")
 
     love.graphics.setFont(self.fonts.small)
     love.graphics.setColor(1, 1, 1, 0.7 + math_sin(self.time * 3) * 0.3)
-    love.graphics.printf("Press P to resume", 0, self.screenHeight / 2 + 20, self.screenWidth, "center")
+    love.graphics.printf("Press P to resume", 0, screenHeight / 2 + 20, screenWidth, "center")
 end
 
 function Game:handleKeypress(key)
@@ -522,12 +518,8 @@ function Game:handleKeypress(key)
     end
 end
 
-function Game:isGameOver()
-    return self.gameOver
-end
+function Game:isGameOver() return self.gameOver end
 
-function Game:setFonts(fonts)
-    self.fonts = fonts
-end
+function Game:setFonts(fonts) self.fonts = fonts end
 
 return Game

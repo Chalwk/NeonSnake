@@ -2,12 +2,11 @@
 -- License: MIT
 -- Copyright (c) 2025 Jericho Crosby (Chalwk)
 
-local Game = require("classes/Game")
-local Menu = require("classes/Menu")
-local BackgroundManager = require("classes/BackgroundManager")
+local Game = require("src.scenes.Game")
+local Menu = require("src.scenes.Menu")
+local BackgroundManager = require("src.managers.BackgroundManager")
 
 local game, menu, backgroundManager
-local screenWidth, screenHeight
 local gameState = "menu"
 local nextGameState = "menu"
 local fonts = {}
@@ -19,8 +18,7 @@ local transition = {
 }
 
 local function updateScreenSize()
-    screenWidth = love.graphics.getWidth()
-    screenHeight = love.graphics.getHeight()
+    screenWidth, screenHeight = love.graphics.getDimensions()
 end
 
 local function startTransition(targetState, transitionType)
@@ -71,7 +69,8 @@ local function drawTransition()
 end
 
 function love.load()
-    love.window.setTitle("Neon Snake - Cyber Evolution")
+    screenWidth, screenHeight = love.graphics.getDimensions()
+
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineStyle("smooth")
 
@@ -93,8 +92,8 @@ function love.load()
     game:setFonts(fonts)
 
     updateScreenSize()
-    menu:setScreenSize(screenWidth, screenHeight)
-    game:setScreenSize(screenWidth, screenHeight)
+    menu:setScreenSize()
+    game:setScreenSize()
 end
 
 function love.update(dt)
@@ -104,11 +103,11 @@ function love.update(dt)
         updateTransition(dt)
     else
         if gameState == "menu" then
-            menu:update(dt, screenWidth, screenHeight)
+            menu:update(dt)
         elseif gameState == "playing" then
             game:update(dt)
         elseif gameState == "options" then
-            menu:update(dt, screenWidth, screenHeight)
+            menu:update(dt)
         end
     end
 
@@ -116,10 +115,10 @@ function love.update(dt)
 end
 
 function love.draw()
-    backgroundManager:draw(screenWidth, screenHeight, gameState)
+    backgroundManager:draw(gameState)
 
     if gameState == "menu" or gameState == "options" then
-        menu:draw(screenWidth, screenHeight, gameState)
+        menu:draw(gameState)
     elseif gameState == "playing" then
         game:draw()
     end
@@ -177,6 +176,6 @@ end
 
 function love.resize(w, h)
     updateScreenSize()
-    menu:setScreenSize(screenWidth, screenHeight)
-    game:setScreenSize(screenWidth, screenHeight)
+    menu:setScreenSize()
+    game:setScreenSize()
 end
